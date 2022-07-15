@@ -22,7 +22,7 @@ public class TableInfo extends DefaultMutableTreeNode{
 	{
 		this.name = name_in;
 	}
-	
+	// test
 	public String getName()
 	{
 		return this.name;
