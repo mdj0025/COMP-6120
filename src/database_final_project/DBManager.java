@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import javax.swing.table.DefaultTableModel;
+
 public class DBManager {
 
 	/**
@@ -50,6 +52,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return tableList;
@@ -79,6 +82,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return bookList;
@@ -105,6 +109,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return customerList;
@@ -130,6 +135,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return employeeList;
@@ -158,6 +164,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return orderList;
@@ -183,6 +190,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return orderDetailList;
@@ -207,6 +215,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return shipperList;
@@ -231,6 +240,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return subjectList;
@@ -258,6 +268,7 @@ public class DBManager {
 		}
 		catch (SQLException ex)
 		{
+			DataTable.displayMessage("Error");
 			ex.printStackTrace();
 		}
 		return supplierList;
@@ -284,5 +295,73 @@ public class DBManager {
 			System.out.println("Error connecting to database.");
 		}
 		return status;
+	}
+
+	public void executeSQL(String inputText) 
+	{
+		if (inputText.contains("SELECT"))
+		{
+			executeSelectStatement(inputText);
+		}
+		else
+		{
+			executeStatement(inputText);
+		}
+		
+	}
+	
+	private void executeStatement(String inputText) {
+		try (Statement statement = this.getDatabaseConnection().createStatement())
+		{
+			statement.executeUpdate(inputText);
+			DataTable.displayMessage("Success");
+		}
+		catch (SQLException ex)
+		{
+			DataTable.displayMessage("Error");
+			ex.printStackTrace();
+		}
+	}
+
+	private void executeSelectStatement(String query)
+	{
+		String[] labels = extractLabelsFromSelectStatement(query);
+		DataTable table = GUIManager.dataTable;
+	    DefaultTableModel model = (DefaultTableModel) table.getModel();
+		DataTable.removeRows(model);
+		model.setColumnIdentifiers(labels);
+		model.addRow(labels);
+		try (Statement statement = this.getDatabaseConnection().createStatement())
+		{
+			ResultSet resultSet = statement.executeQuery(query);
+			while (resultSet.next())
+			{
+				ArrayList<String> values = new ArrayList<String>();
+				for(String label : labels)
+				{
+					values.add(resultSet.getString(label));
+				}
+				model.addRow(values.toArray());
+			}
+		}
+		catch (SQLException ex)
+		{
+			DataTable.displayMessage("Error");
+			ex.printStackTrace();
+		}
+	}
+
+	private String[] extractLabelsFromSelectStatement(String query) {
+		// ASSUMPTION: input is of form "SELECT id1, id2, id3.... FROM....."
+		int firstIDIndex = 7; // SELECT + " " == 7 spaces
+		int endIndex = query.indexOf("FROM");
+		String idSubstring = query.substring(firstIDIndex, endIndex);
+		String[] idArray = idSubstring.split(", ");
+		int lastElement = idArray.length - 1;
+		if (idArray[lastElement].contains("\n"))
+		{
+			idArray[lastElement] = idArray[lastElement].substring(0, idArray[lastElement].length() - 1);
+		}
+		return idArray;
 	}
 }

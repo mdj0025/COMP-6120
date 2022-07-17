@@ -1,8 +1,11 @@
 package database_final_project;
 
+import java.awt.Dimension;
+
 import javax.swing.JTextArea;
 
-public class InputForm extends JTextArea{
+public class InputForm extends JTextArea
+{
 	/**
 	 * 
 	 */
@@ -12,6 +15,6 @@ public class InputForm extends JTextArea{
 	{
 		super();
 		this.setVisible(true);
-		this.setSize(200, 200);
+		this.setPreferredSize(new Dimension(600, 100));
 	}
 }

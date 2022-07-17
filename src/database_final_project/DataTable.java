@@ -1,5 +1,6 @@
 package database_final_project;
 
+import java.awt.Font;
 import java.util.ArrayList;
 
 import javax.swing.JTable;
@@ -17,6 +18,7 @@ public class DataTable extends JTable {
 		super();
 		this.setVisible(true);
 		this.setShowGrid(true);
+		this.setFont(new Font("Serif", Font.PLAIN, 15));
 	}
 	
 	public static void displayBookData(DataTable table, ArrayList<BookInfo> bookList)
@@ -157,6 +159,16 @@ public class DataTable extends JTable {
 
 			tableModel.addRow(data);
 		}
+	}
+
+	public static void displayMessage(String message)
+	{
+		DefaultTableModel model = (DefaultTableModel) GUIManager.dataTable.getModel();
+		removeRows(model);
+		
+		Object[] messageArray = {message};
+		model.setColumnCount(1);
+		model.addRow(messageArray);
 	}
 
 	public static void removeRows(DefaultTableModel tableModel)
