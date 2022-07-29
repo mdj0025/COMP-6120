@@ -77,6 +77,7 @@ public class TableTree extends JTree
 				ArrayList<SupplierInfo> supplierList = dbManager.getSupplierTableData();
 				DataTable.displaySupplierData(GUIManager.dataTable, supplierList);
 			}
+			DataTable.resize(GUIManager.dataTable);
 		}
 	}
 

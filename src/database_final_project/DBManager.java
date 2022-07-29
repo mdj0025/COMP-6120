@@ -307,7 +307,7 @@ public class DBManager {
 		{
 			executeStatement(inputText);
 		}
-		
+		DataTable.resize(GUIManager.dataTable);
 	}
 	
 	private void executeStatement(String inputText) {
@@ -331,15 +331,15 @@ public class DBManager {
 		DataTable.removeRows(model);
 		model.setColumnIdentifiers(labels);
 		model.addRow(labels);
-		try (Statement statement = this.getDatabaseConnection().createStatement())
+		try (Statement statement = this.getDatabaseConnection().createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY))
 		{
 			ResultSet resultSet = statement.executeQuery(query);
 			while (resultSet.next())
 			{
 				ArrayList<String> values = new ArrayList<String>();
-				for(String label : labels)
+				for (int index = 1; index <= labels.length; index++)
 				{
-					values.add(resultSet.getString(label));
+					values.add(resultSet.getString(index));
 				}
 				model.addRow(values.toArray());
 			}
@@ -356,11 +356,31 @@ public class DBManager {
 		int firstIDIndex = 7; // SELECT + " " == 7 spaces
 		int endIndex = query.indexOf("FROM");
 		String idSubstring = query.substring(firstIDIndex, endIndex);
+		if (idSubstring.startsWith("FORMAT"))
+		{
+			firstIDIndex = idSubstring.indexOf("AS") + 3; // Add 3 to get rid of the AS and the space following.
+			idSubstring = idSubstring.substring(firstIDIndex, idSubstring.length());
+		}
 		String[] idArray = idSubstring.split(", ");
 		int lastElement = idArray.length - 1;
 		if (idArray[lastElement].contains("\n"))
 		{
 			idArray[lastElement] = idArray[lastElement].substring(0, idArray[lastElement].length() - 1);
+		}
+		
+		for (int index = 0; index < idArray.length; index++)
+		{
+			String element = idArray[index];
+			if (element.contains(")")) // If it contains a parenthesis it has a statement that we need to remove
+			{
+				element = element.substring(element.indexOf(")") + 1);
+				idArray[index] = element;
+			}
+			else if (element.contains("."))
+			{
+				element = element.substring(element.indexOf(".") + 1);
+				idArray[index] = element;
+			}
 		}
 		return idArray;
 	}

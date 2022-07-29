@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 public class DataTable extends JTable {
 
@@ -178,5 +180,31 @@ public class DataTable extends JTable {
 		{
 			tableModel.removeRow(0);
 		}
+	}
+	
+	public static void resize(DataTable table)
+	{
+		TableColumnModel columnModel = table.getColumnModel();
+		TableModel tableModel = table.getModel();
+		int columnCount = columnModel.getColumnCount();
+		
+		for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
+		{
+			int maxWidth = 0;
+			int rowCount = tableModel.getRowCount();
+			for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+			{
+				if (tableModel.getValueAt(rowIndex, columnIndex) != null)
+				{
+					int width = tableModel.getValueAt(rowIndex, columnIndex).toString().length() * 10;
+					if (width > maxWidth)
+					{
+						maxWidth = width;
+					}
+				}
+				columnModel.getColumn(columnIndex).setPreferredWidth(maxWidth);
+			}
+		}
+				
 	}
 }
